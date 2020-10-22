@@ -1,0 +1,38 @@
+# Prerequisites:
+# a) valid iOS development certificate
+# b) valid iOS provisioning profile (with added devices)
+
+# Video example of filling in the values with real information:
+# https://www.youtube.com/watch?v=tXboDVGTf50
+
+workflows:
+  ios-project:
+    name: iOS project with manual code signing for development
+    environment:
+      vars:
+        CM_CERTIFICATE: <your_encrypted_developer_certificate>
+        CM_CERTIFICATE_PASSWORD: <your_encrypted_developer_certificate_password>
+        CM_PROVISIONING_PROFILE: <your_encrypted_provisioning_profile>
+        XCODE_WORKSPACE: <your_workspace> # for example appname.xcworkspace
+        # define XCODE_PROJECT: <your_project> if you wish to use .xcodeproj instead of .xcworkspace
+        XCODE_SCHEME: <your_scheme>
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - keychain initialize
+      - name: Set up provisioning profiles
+        script: |
+          PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
+          mkdir -p "$PROFILES_HOME"
+          PROFILE_PATH="$(mktemp "$PROFILES_HOME"/$(uuidgen).mobileprovision)"
+          echo ${CM_PROVISIONING_PROFILE} | base64 --decode > $PROFILE_PATH
+          echo "Saved provisioning profile $PROFILE_PATH"
+      - name: Set up signing certificate
+        script: |
+          echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+          keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CM_CERTIFICATE_PASSWORD
+      - xcode-project use-profiles
+      - xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME" # use --project "$XCODE_PROJECT" instead if you wish to use .xcodeproj instead
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
