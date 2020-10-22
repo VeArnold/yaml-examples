@@ -1,6 +1,7 @@
 # Prerequisites:
 # a) valid iOS development certificate
 # b) valid iOS provisioning profile (with added devices)
+# c) if using XCODE_WORKSPACE - a .xcworkspace file in the root of your iOS folder
 
 # Video example of filling in the values with real information:
 # https://www.youtube.com/watch?v=tXboDVGTf50
