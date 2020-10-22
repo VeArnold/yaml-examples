@@ -4,7 +4,7 @@
 # c) if using XCODE_WORKSPACE - a .xcworkspace file in the root of your iOS folder
 
 # Video example of filling in the values with real information:
-# <https://www.youtube.com/watch?v=tXboDVGTf50>
+<https://www.youtube.com/watch?v=tXboDVGTf50>
 
 workflows:
   ios-project:
