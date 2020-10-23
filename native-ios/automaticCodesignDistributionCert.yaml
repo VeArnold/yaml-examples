@@ -1,0 +1,50 @@
+# Prerequisites:
+# a) access to App Store Connect -> Users and Access -> Keys
+# b) less than 3 distribution certificates already set up (Apple limits the amount of distribution certificates to 3)
+
+# FILL-IN GUIDE:
+# APP_STORE_CONNECT_ISSUER_ID: App Store Connect -> Users and Access -> Keys -> Issuer ID (format: 35f1fg2-5abe-17cd-9d15-3fd7g62d7a4a)
+# APP_STORE_CONNECT_KEY_IDENTIFIER: App Store Connect -> Users and Access -> Keys (+ to add new key) -> key ID once process completed
+# NB! When generating a new key choose either Developer or App Manager access.
+# APP_STORE_CONNECT_PRIVATE_KEY: Download the previously created key in App Store Connect -> Users and Access -> Keys -> Download API Key
+# after you've downloaded the key, open it up in any of your editors, and copy the CONTENT of the key to the Codemagic encryption tool
+# make sure that you include the entire document, including -----BEGIN PRIVATE KEY----- and -----END PRIVATE KEY-----, once encrypted
+# go ahead and paste the value into the yaml.
+# CERTIFICATE_PRIVATE_KEY: generate a new key locally using: ssh-keygen -t rsa -b 2048 -m PEM -f ~/Desktop/codemagic_private_key -q -N ""
+# after the key has been generated, copy the entire CONTENT of the file (codemagic_private_key), including -----BEGIN RSA PRIVATE KEY----- and
+# -----END RSA PRIVATE KEY----- and the following empty line into the Codemagic encryption tool and paste the encrypted value into the yaml. 
+# XCODE_WORKSPACE: this is simply the name of your .xcworkspace, thus for example: appname.xcworkspace.
+# XCODE_PROJECT: this can be defined instead of XCODE_WORKSPACE, to use your appname.xcodeproj file instead.
+# NB! If you decide to use .xcodeproj instead of .xcworkspace, please also modify the build-ipa script accordingly.
+# XCODE_SCHEME: this is your xcode scheme/target name, which by default most likely is your app name.
+# Add your bundle ID to the app-store-connect fetch step!
+
+# Video example of filling in the values with real information:
+# https://www.youtube.com/watch?v=ymoirZuH10U
+
+workflows:
+  ios:
+    name: iOS automatic code signing with developer certificate
+    max_build_duration: 60
+    environment:
+      vars:
+        APP_STORE_CONNECT_ISSUER_ID: <your App Store Connect issuer ID>
+        APP_STORE_CONNECT_KEY_IDENTIFIER: <your App Store Connect key identifier>
+        APP_STORE_CONNECT_PRIVATE_KEY: <your App Store Connect private key>
+        CERTIFICATE_PRIVATE_KEY: <your Certificate private key>
+        XCODE_WORKSPACE: <your xcode workspace>
+        # define XCODE_PROJECT: <your_project> if you wish to use .xcodeproj instead of .xcworkspace
+        XCODE_SCHEME: <your xcode scheme>
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - find . -name "Podfile" -execdir pod install \;
+      - keychain initialize
+      - app-store-connect fetch-signing-files "your.bundle.id" --type IOS_APP_STORE --create
+      - keychain add-certificates
+      - xcode-project use-profiles
+      - xcode-project build-ipa --workspace "$XCODE_WORKSPACE" --scheme "$XCODE_SCHEME" # use --project "$XCODE_PROJECT" instead if you wish to use .xcodeproj instead
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
