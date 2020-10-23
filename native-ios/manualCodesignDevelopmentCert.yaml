@@ -3,6 +3,18 @@
 # b) valid iOS provisioning profile (with added devices)
 # c) if using XCODE_WORKSPACE - a .xcworkspace file in the root of your iOS folder
 
+# FILL-IN GUIDE:
+# CM_CERTIFICATE: download your certificate from the Apple Developer Portal, add to your keychain, export as .p12 or .p8,
+# encrypt the file in Codemagic UI and paste in the value to to the yaml.
+# CM_CERTIFICATE_PASSWORD: this is the password you set to the certificate while you're exporting it,
+# go ahead and copy/write the password into the UI encryption tool and paste the encrypted value to the yaml.
+# CM_PROVISIONING_PROFILE: this can also be retrieved from the Apple Developer Portal under profiles, download the
+# developer profile that matches your bundle id (or create one) and encrypt the file in the UI and paste it into the yaml.
+# XCODE_WORKSPACE: this is simply the name of your .xcworkspace, thus for example: appname.xcworkspace.
+# XCODE_PROJECT: this can be defined instead of XCODE_WORKSPACE, to use your appname.xcodeproj file instead.
+# NB! If you decide to use .xcodeproj instead of .xcworkspace, please also modify the build-ipa script accordingly.
+# XCODE_SCHEME: this is your xcode scheme/target name, which by default most likely is your app name.
+
 # Video example of filling in the values with real information:
 # https://www.youtube.com/watch?v=tXboDVGTf50
 
@@ -14,7 +26,7 @@ workflows:
         CM_CERTIFICATE: <your_encrypted_developer_certificate>
         CM_CERTIFICATE_PASSWORD: <your_encrypted_developer_certificate_password>
         CM_PROVISIONING_PROFILE: <your_encrypted_provisioning_profile>
-        XCODE_WORKSPACE: <your_workspace> # for example appname.xcworkspace
+        XCODE_WORKSPACE: <your_workspace>
         # define XCODE_PROJECT: <your_project> if you wish to use .xcodeproj instead of .xcworkspace
         XCODE_SCHEME: <your_scheme>
       xcode: latest
