@@ -1,0 +1,71 @@
+## Notes
+# The Python option provides more graphical output and content, however takes an extra 10-20 seconds per build due to a module installation.
+# However the content for the Discord SH option can also be modified to your needs.
+
+workflows:
+  discord:
+    name: Discord Publishing
+    max_build_duration: 60
+    environment:
+      vars:
+        DISCORD_HOOK: <your Discord webhook URL>
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+      - xcode-project build-ipa
+      - echo 'export BUILD_STATUS=success' >> MY_ENV_VARS # Has to be after all of your other scripts
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+    publishing:
+      scripts:
+        - name: Option #1 Discord SH
+          script: |
+            source MY_ENV_VARS
+            git clone https://github.com/ChaoticWeg/discord.sh.git && cd discord.sh
+              if [ $BUILD_STATUS == 'success' ]
+              then
+                ./discord.sh --webhook-url "$DISCORD_HOOK" --author-icon "https://avatars2.githubusercontent.com/u/53334409?s=400&v=4" --author "Codemagic" --color "0x32CD32" --description "Build [#$BUILD_NUMBER](https://codemagic.io/app/$FCI_PROJECT_ID/build/$FCI_BUILD_ID) was successful! :smiley:"
+              else
+                ./discord.sh --webhook-url "$DISCORD_HOOK" --author-icon "https://avatars2.githubusercontent.com/u/53334409?s=400&v=4" --author "Codemagic" --color "0xFF0000" --description "Build [#$BUILD_NUMBER](https://codemagic.io/app/$FCI_PROJECT_ID/build/$FCI_BUILD_ID) failed! :worried:"
+              fi
+        - name: Option #2 Python
+          script: |
+            source MY_ENV_VARS
+            pip3 install dhooks
+            python3 - <<EOF
+            import os
+            import subprocess
+            import sys
+            from dhooks import Webhook, Embed
+            hook = Webhook(os.getenv('DISCORD_HOOK'))
+            build_number = os.getenv('BUILD_NUMBER')
+            build_id = os.getenv('FCI_BUILD_ID')
+            commit = os.getenv('FCI_COMMIT')
+            project_id = os.getenv('FCI_PROJECT_ID')
+            project = 'https://codemagic.io/app/%s' % (project_id)
+            build_url = '%s/build/%s' % (project, build_id)
+            build_status = os.getenv('BUILD_STATUS')
+            if os.getenv('BUILD_STATUS') == 'success':
+                embed = Embed(
+                    description='Build [#%s](%s) was successful! :smiley:' % (build_number, build_url),
+                    color=0x32CD32,
+                    timestamp='now'
+                    )
+            else:
+                embed = Embed(
+                    description='Build [#%s](%s) failed! :worried:' % (build_number, build_url),
+                    color=0xFF0000,
+                    timestamp='now'
+                    )
+            image1 = 'https://avatars2.githubusercontent.com/u/53334409?s=400&v=4'
+            image2 = 'https://d2mn9dr0jv4622.cloudfront.net/wp-content/uploads/2018/12/04153145/CM-blog.jpg'
+            embed.set_author(name='Codemagic', icon_url=image1)
+            embed.add_field(name='Commit', value=commit)
+            embed.add_field(name='Project', value=project)
+            embed.set_footer(text='Date', icon_url=image1)
+            embed.set_thumbnail(image1)
+            embed.set_image(image2)
+            hook.send(embed=embed)
+            EOF
