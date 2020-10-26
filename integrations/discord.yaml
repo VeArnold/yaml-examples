@@ -20,7 +20,7 @@ workflows:
       - /tmp/xcodebuild_logs/*.log
     publishing:
       scripts:
-        - name: Option #1 Discord SH
+        - name: Option 1 # Discord SH
           script: |
             source MY_ENV_VARS
             git clone https://github.com/ChaoticWeg/discord.sh.git && cd discord.sh
@@ -30,7 +30,7 @@ workflows:
               else
                 ./discord.sh --webhook-url "$DISCORD_HOOK" --author-icon "https://avatars2.githubusercontent.com/u/53334409?s=400&v=4" --author "Codemagic" --color "0xFF0000" --description "Build [#$BUILD_NUMBER](https://codemagic.io/app/$FCI_PROJECT_ID/build/$FCI_BUILD_ID) failed! :worried:"
               fi
-        - name: Option #2 Python
+        - name: Option 2 # Python
           script: |
             source MY_ENV_VARS
             pip3 install dhooks
