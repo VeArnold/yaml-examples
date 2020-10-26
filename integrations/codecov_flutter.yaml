@@ -1,0 +1,19 @@
+
+workflows:
+  discord:
+    name: CodeCov Coverage Report
+    max_build_duration: 60
+    environment:
+      vars:
+        CODECOV_TOKEN: <your encrypted CodeCov token> 
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+    scripts:
+        - name: Coverage Test
+        script: |
+          #!/bin/bash
+          flutter test --coverage
+          bash <(curl -s https://codecov.io/bash) -t $CODECOV_TOKEN
+    artifacts:
+      - /flutter_drive.log
