@@ -64,7 +64,7 @@ workflows:
       - *ipa
       - *xcode_log
       - *dsym
-  flavor_one:
+  flavor_two:
     environment:
       vars:
         << : *apple_signing
