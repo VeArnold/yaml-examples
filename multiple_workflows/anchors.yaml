@@ -1,7 +1,7 @@
 workflows:
   definitions:
     environment:
-      apple_signing: &apple_signing
+      vars: &apple_signing
         APP_STORE_CONNECT_ISSUER_ID: <your issuer ID>
         APP_STORE_CONNECT_KEY_IDENTIFIER: <your key identifier>
         APP_STORE_CONNECT_PRIVATE_KEY: Encrypted('...')
@@ -46,7 +46,8 @@ workflows:
       - &dsym $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
   flavor_one:
     environment:
-      vars: *apple_signing
+      vars:
+        <<: *apple_signing
         XCODE_SCHEME: <scheme for first flavor>
         XCODE_CONFIG: <config for first flavor>
         BUNDLE_IDENTIFIER: <your bundle ID>
@@ -65,7 +66,8 @@ workflows:
       - *dsym
   flavor_two:
     environment:
-      vars: *apple_signing
+      vars:
+        <<: *apple_signing
         XCODE_SCHEME: <scheme for second flavor>
         XCODE_CONFIG: <config for second flavor>
         BUNDLE_IDENTIFIER: <your bundle ID>
