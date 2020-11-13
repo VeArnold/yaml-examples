@@ -23,7 +23,7 @@ definitions:
     - &ios_flutter_build
       name: Build app
       script: |
-        flutter build ios --release --build-name=1.0.0 --build-number=$(($BUILD_NUMBER+1))
+        flutter build ios --release --build-name=1.0.0 --build-number=$(($BUILD_NUMBER+1)) --flavor $XCODE_SCHEME
     - &ios_set_signing_to_xcode
       name: Set up code signing settings on Xcode project
       script: |
