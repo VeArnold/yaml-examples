@@ -1,6 +1,6 @@
 definitions:
   environment:
-    automatic_ios_signing: &automatic_ios_signing
+    apple_signing: &apple_signing
       APP_STORE_CONNECT_ISSUER_ID: Encrypted(...)
       APP_STORE_CONNECT_KEY_IDENTIFIER: Encrypted(...)
       APP_STORE_CONNECT_PRIVATE_KEY: Encrypted(...)
