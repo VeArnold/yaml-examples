@@ -1,0 +1,13 @@
+
+workflows:
+  hello_world:
+    name: Hello World
+    triggering:
+      events:
+        - pull_request
+      branch_patterns:
+        - pattern: '*'
+          include: true
+          source: true
+    scripts:
+      - echo "Hello World!"
