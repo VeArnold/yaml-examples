@@ -1,0 +1,58 @@
+definitions:
+  environment:
+    apple_signing: &apple_signing
+      APP_STORE_CONNECT_ISSUER_ID: Encrypted(...)
+      APP_STORE_CONNECT_KEY_IDENTIFIER: Encrypted(...)
+      APP_STORE_CONNECT_PRIVATE_KEY: Encrypted(...)
+      CERTIFICATE_PRIVATE_KEY: Encrypted(...)
+  scripts: &scripts
+    - name: Pub Get
+      script: flutter packages pub get
+    - name: Install pods
+      script: find . -name "Podfile" -execdir pod repo update \; -a -execdir pod install \;
+    - name: Initialize Keychain
+      script: keychain initialize
+    - name: Fetch from App Store Connect
+      script: app-store-connect fetch-signing-files "$BUNDLE_IDENTIFIER" --type IOS_APP_DEVELOPEMENT
+    - name: Build app
+      script: flutter build ios --release --build-name=1.0.0 --build-number=$(($BUILD_NUMBER+1)) --flavor $XCODE_SCHEME
+    - name: Set up code signing settings on Xcode project
+      script: xcode-project use-profiles
+    - name: Build ipa
+      script: |
+        xcode-project build-ipa \
+          --workspace $XCODE_WORKSPACE \
+          --scheme $XCODE_SCHEME \
+          --config $XCODE_CONFIG
+  publishing: &publishing
+    email:
+      recipients:
+        - example@example.com
+  artifacts: &artifacts
+    - build/ios/ipa/*.ipa
+    - /tmp/xcodebuild_logs/*.log
+    - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+workflows:
+  flavor_one:
+    name: Flavor One
+    environment:
+      vars:
+        <<: *apple_signing
+        XCODE_SCHEME: <scheme for first flavor>
+        XCODE_CONFIG: <config for first flavor>
+        BUNDLE_IDENTIFIER: <your bundle ID>
+    scripts: *scripts
+    publishing: *publishing
+    artifacts: *artifacts
+  flavor_two:
+    name: Flavor Two
+    environment:
+      vars:
+        <<: *apple_signing
+        XCODE_SCHEME: <scheme for second flavor>
+        XCODE_CONFIG: <config for second flavor>
+        BUNDLE_IDENTIFIER: <your bundle ID>
+    scripts: *scripts
+    publishing: *publishing
+    artifacts: *artifacts
