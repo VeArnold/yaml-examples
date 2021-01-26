@@ -1,0 +1,52 @@
+definitions:
+  environment:
+    apple_signing: &apple_signing
+      APP_STORE_CONNECT_ISSUER_ID: Encrypted(...)
+      APP_STORE_CONNECT_KEY_IDENTIFIER: Encrypted(...)
+      APP_STORE_CONNECT_PRIVATE_KEY: Encrypted(...)
+      CERTIFICATE_PRIVATE_KEY: Encrypted(...)
+  triggering: &triggering
+      events:
+        - pull_request
+      branch_patterns:
+        - pattern: 'develop'
+          include: true
+          source: false
+      cancel_previous_builds: true
+  scripts: &scripts
+    - name: Say Hello
+      script: echo "Hello World"
+  publishing: &publishing
+    email:
+      recipients:
+        - example@example.com
+  artifacts: &artifacts
+    - build/ios/ipa/*.ipa
+    - /tmp/xcodebuild_logs/*.log
+    - $HOME/Library/Developer/Xcode/DerivedData/**/Build/**/*.dSYM
+
+workflows:
+  flavor_one:
+    name: Flavor One
+    environment:
+      vars:
+        <<: *apple_signing
+        XCODE_SCHEME: <scheme for first flavor>
+        XCODE_CONFIG: <config for first flavor>
+        BUNDLE_IDENTIFIER: <your bundle ID>
+    triggering: *triggering
+    scripts: *scripts
+    publishing: *publishing
+    artifacts: *artifacts
+  flavor_two:
+    name: Flavor Two
+    environment:
+      vars:
+        <<: *apple_signing
+        XCODE_SCHEME: <scheme for second flavor>
+        XCODE_CONFIG: <config for second flavor>
+        BUNDLE_IDENTIFIER: <your bundle ID>
+    triggering: *triggering
+    scripts: *scripts
+    publishing: *publishing
+    artifacts: *artifacts
