@@ -20,6 +20,10 @@ definitions:
       name: Fetch from App Store Connect
       script: |
         app-store-connect fetch-signing-files "$BUNDLE_IDENTIFIER" --type IOS_APP_DEVELOPEMENT
+    - $ios_set_signing_certificate
+      name: Add certificate
+      script: |
+        keychain add-certificates
     - &ios_flutter_build
       name: Build app
       script: |
