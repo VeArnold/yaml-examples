@@ -1,5 +1,10 @@
-            - name: Set up provisioning profiles
+            
+              - &setup_ios_codesigning
+              name: Set up provisioning profiles
               script: |
+                set -e
+                keychain initialize 
+                
                 PROFILES_HOME="$HOME/Library/MobileDevice/Provisioning Profiles"
                 mkdir -p "$PROFILES_HOME"
                 for profile in "${!CM_PROVISIONING_PROFILE@}"; do
@@ -7,3 +12,6 @@
                     echo ${!profile} | base64 --decode > $PROFILE_PATH
                     echo "Saved provisioning profile $PROFILE_PATH"
                 done  
+
+                echo $CM_CERTIFICATE | base64 --decode > /tmp/certificate.p12
+                keychain add-certificates --certificate /tmp/certificate.p12 --certificate-password $CERTIFICATE_PASSWORD
