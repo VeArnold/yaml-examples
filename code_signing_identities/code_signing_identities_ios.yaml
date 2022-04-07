@@ -28,6 +28,8 @@ workflows:
         ignore_failure: true
       - name: Install pods
         script: find . -name "Podfile" -execdir pod install \;
+      - name: Set up code signing settings on Xcode project
+        script: xcode-project use-profiles
       - name: Flutter build ipa and automatic versioning
         script: |
           flutter build ipa --release \
